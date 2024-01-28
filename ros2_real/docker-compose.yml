@@ -1,0 +1,47 @@
+version: '2'
+
+services:
+  firmware:
+    image: therealnavzz/naveen-cp22:tortoisebot-ros2-real
+    container_name: tortoisebot-ros1-real_1
+    devices:
+      - "/dev/ttyUSB0"
+      - "/dev/video0"
+    cap_add:
+      - SYS_RAWIO
+    environment:
+      - ROS_DOMAIN_ID=0
+      - ROS_HOSTNAME=master
+      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+    privileged: true
+    tty: true
+    network_mode: host
+    pid: host
+    restart: always
+    ipc: host
+    volumes:
+      - /dev/shm:/dev/shm
+      - /dev/mem:/dev/mem
+      - /dev/gpiomem:/dev/gpiomem
+
+  slam:
+    image: therealnavzz/naveen-cp22:tortoisebot-ros2-slam
+    container_name: tortoisebot-ros1-slam_1
+    environment:
+      - ROS_DOMAIN_ID=0
+      - ROS_HOSTNAME=master
+      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+      - DISPLAY=$DISPLAY
+    restart: always
+    privileged: true
+    tty: true
+    network_mode: host
+    ipc: host
+    pid: host
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /dev/shm:/dev/shm
+      - /dev/mem:/dev/mem
+      - /dev/gpiomem:/dev/gpiomem
+
+

@@ -1,0 +1,25 @@
+# Start from ROS base image
+FROM osrf/ros:noetic-desktop-full
+
+# Make a catkin workspace
+WORKDIR /
+RUN mkdir -p /simulation_ws/src
+WORKDIR /simulation_ws/src
+
+# Install Git, Python, and other dependencies
+RUN apt-get update && \
+    apt-get install -y git python3 python3-pip && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY ./ /simulation_ws/src/course_web_dev_ros
+
+WORKDIR /simulation_ws
+
+# Build your ROS packages
+RUN /bin/bash -c "source /opt/ros/noetic/setup.bash; cd /simulation_ws; catkin_make"
+
+# Source the workspace every time a new shell is opened in the container
+RUN echo source /simulation_ws/devel/setup.bash >> ~/.bashrc
+
+# Set the entry point to start a bash shell
+CMD /bin/bash -c "source /simulation_ws/devel/setup.bash; rosrun course_web_dev_ros tortoisebot_action_server.py"

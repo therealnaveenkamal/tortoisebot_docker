@@ -1,0 +1,70 @@
+version: '2'
+
+networks:
+  ros:
+    driver: bridge
+
+services:
+  ros-master:
+    image: osrf/ros:noetic-desktop-full
+    command: stdbuf -o L roscore
+    networks:
+      - ros
+    restart: always
+    ports:
+      - "11311:11311"
+
+  gazebo:
+    image: therealnavzz/naveen-cp22:tortoisebot-ros1-gazebo
+    container_name: tortoisebot-ros1-gazebo_1
+    depends_on:
+      - ros-master
+    environment:
+      - "ROS_MASTER_URI=http://ros-master:11311"
+      - DISPLAY=:2
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    networks:
+      - ros
+    restart: always
+
+  slam:
+    image: therealnavzz/naveen-cp22:tortoisebot-ros1-slam
+    container_name: tortoisebot-ros1-slam_1
+    depends_on:
+      - ros-master
+    environment:
+      - "ROS_MASTER_URI=http://ros-master:11311"
+      - DISPLAY=:1
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    networks:
+      - ros
+    restart: always
+
+  waypoints:
+    image: therealnavzz/naveen-cp22:tortoisebot-ros1-waypoints
+    container_name: tortoisebot-ros1-waypoints_1
+    depends_on:
+      - ros-master
+    environment:
+      - "ROS_MASTER_URI=http://ros-master:11311"
+    networks:
+      - ros
+    restart: always
+
+  webapp:
+    image: therealnavzz/naveen-cp22:tortoisebot-ros1-webapp
+    container_name: tortoisebot-ros1-webapp_1
+    depends_on:
+      - ros-master
+    environment:
+      - "ROS_MASTER_URI=http://ros-master:11311"
+      - "SLOT_ROSBRIDGE_PORT=20001"
+    networks:
+      - ros
+    restart: always
+    ports:
+      - "11315:11315"
+      - "9090:9090"
+      - "20001:20001"

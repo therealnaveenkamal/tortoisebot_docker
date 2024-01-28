@@ -1,0 +1,20 @@
+version: '2'
+
+services:
+  gazebo:
+    image: therealnavzz/naveen-cp22:tortoisebot-ros2-gazebo
+    container_name: tortoisebot-ros2-gazebo_1
+    environment:
+      - DISPLAY=:2
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    restart: always
+
+  slam:
+    image: therealnavzz/naveen-cp22:tortoisebot-ros2-slam
+    container_name: tortoisebot-ros2-slam_1
+    environment:
+      - DISPLAY=:1
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    restart: always

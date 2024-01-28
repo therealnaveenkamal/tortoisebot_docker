@@ -1,0 +1,23 @@
+# Start from ROS base image
+FROM osrf/ros:galactic-desktop
+
+# Make a catkin workspace
+WORKDIR /
+RUN mkdir -p /ros2_ws/src/tortoisebot
+WORKDIR /ros2_ws/src
+
+# Install Git
+RUN apt-get update && apt-get install -y git ros-galactic-joint-state-publisher ros-galactic-robot-state-publisher ros-galactic-cartographer ros-galactic-cartographer-ros ros-galactic-gazebo-plugins ros-galactic-teleop-twist-keyboard  ros-galactic-teleop-twist-joy ros-galactic-xacro ros-galactic-nav2* ros-galactic-urdf 
+
+COPY ./ /ros2_ws/src/tortoisebot
+
+WORKDIR /ros2_ws
+
+# Build your ROS packages
+RUN /bin/bash -c "source /opt/ros/galactic/setup.bash; cd /ros2_ws; colcon build"
+
+# Source the workspace every time a new shell is opened in the container
+RUN echo source /ros2_ws/install/setup.bash >> ~/.bashrc
+
+# Set the entry point to start a bash shell
+CMD /bin/bash -c "source /ros2_ws/install/setup.bash; ros2 launch tortoisebot_slam cartographer.launch.py use_sim_time:=True"

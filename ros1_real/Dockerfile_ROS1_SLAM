@@ -1,0 +1,11 @@
+# Start from ROS base image
+FROM therealnavzz/misc:ros1-rviz
+
+WORKDIR /catkin_ws
+
+RUN /bin/bash -c "source devel/setup.bash; catkin_make"
+
+RUN echo source /catkin_ws/devel/setup.bash >> ~/.bashrc
+
+# Set the entry point to start a bash shell
+CMD /bin/bash -c "source /catkin_ws/devel/setup.bash; roslaunch tortoisebot_slam tortoisebot_slam.launch"

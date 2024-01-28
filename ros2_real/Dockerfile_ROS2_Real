@@ -1,0 +1,49 @@
+# Start from ROS base image
+FROM ros:galactic-ros-core
+
+# Make a catkin workspace
+WORKDIR /
+RUN mkdir -p /ros2_ws/src
+WORKDIR /ros2_ws/src
+
+# Install Git, Python, and other dependencies
+RUN apt-get update && \
+    apt-get install -y git python3 python3-pip && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Additional dependencies for raspicam_node
+RUN apt-get update && apt-get install -y ros-galactic-compressed-image-transport
+
+RUN apt-get install -y ros-galactic-camera-info-manager
+
+RUN apt-get update && apt-get install -y ros-galactic-joint-state-publisher         
+
+RUN apt-get install -y ros-galactic-robot-state-publisher
+RUN apt-get install -y ros-galactic-cartographer
+RUN apt-get install -y ros-galactic-cartographer-ros
+RUN apt-get install -y ros-galactic-gazebo-plugins
+RUN apt-get install -y ros-galactic-teleop-twist-keyboard
+RUN apt-get install -y ros-galactic-teleop-twist-joy
+RUN apt-get install -y ros-galactic-xacro
+RUN apt-get install -y ros-galactic-diagnostic-updater
+RUN apt-get install -y ros-galactic-nav2*
+RUN apt-get install -y ros-galactic-urdf
+
+# Clone your ROS packages
+RUN git clone -b ros2-galactic https://github.com/rigbetellabs/tortoisebot.git
+
+
+WORKDIR /ros2_ws
+
+RUN apt-get install -y python3-colcon-common-extensions
+
+# Build your ROS packages
+RUN /bin/bash -c "source /opt/ros/galactic/setup.bash; cd /ros2_ws; colcon build"
+
+# Source the workspace every time a new shell is opened in the container
+RUN echo source /ros2_ws/install/setup.bash >> ~/.bashrc
+
+# Set the entry point to start a bash shell
+CMD /bin/bash -c "source /ros2_ws/install/setup.bash; ros2 launch tortoisebot_bringup bringup.launch.py use_sim_time:=False"
