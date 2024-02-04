@@ -40,6 +40,7 @@ services:
     pid: host
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
+      - $HOME/.Xauthority:/root/.Xauthority:ro
       - /dev/shm:/dev/shm
       - /dev/mem:/dev/mem
       - /dev/gpiomem:/dev/gpiomem
